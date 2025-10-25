@@ -23,6 +23,12 @@ jobs:
       #   run: |
       #     ruff check --fix .
       #     mypy .
+      - name: Configure Databricks CLI
+        run: |
+          mkdir -p ~/.databricks
+          echo "[DEFAULT]" > ~/.databricks/config
+          echo "host = ${{ secrets.DATABRICKS_HOST }}" >> ~/.databricks/config
+          echo "token = ${{ secrets.DATABRICKS_TOKEN }}" >> ~/.databricks/config
       - name: Package notebooks
         run: |
           tar -czf notebooks.tar.gz notebooks src conf
