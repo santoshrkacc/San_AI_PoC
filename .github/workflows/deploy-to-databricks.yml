@@ -1,0 +1,40 @@
+name: Deploy to Databricks
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Databricks CLI
+        run: pip install databricks-cli
+
+      - name: Configure Databricks CLI
+        env:
+          HOME: ${{ github.workspace }}
+        run: |
+          mkdir -p ~/.databricks
+          echo "[DEFAULT]" > ~/.databricks/config
+          echo "host = ${{ secrets.DATABRICKS_HOST }}" >> ~/.databricks/config
+          echo "token = ${{ secrets.DATABRICKS_TOKEN }}" >> ~/.databricks/config
+
+      - name: Deploy Notebooks
+        env:
+          HOME: ${{ github.workspace }}
+        run: |
+          databricks workspace import_dir notebooks /Shared/my_project -o
+
+      # - name: Restart Job (optional)
+      #   run: |
+      #     databricks jobs run-now --job-id 12345

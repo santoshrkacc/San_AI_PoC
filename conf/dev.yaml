@@ -1,0 +1,14 @@
+env: dev
+adls_account_name: <your-dev-storage>
+adls_container_raw: raw
+adls_container_bronze: bronze
+adls_container_silver: silver
+adls_container_gold: gold
+paths:
+  bronze: /mnt/bronze
+  silver: /mnt/silver
+  gold: /mnt/gold
+spark:
+  shuffle_partitions: 200
+  adaptive: true
+

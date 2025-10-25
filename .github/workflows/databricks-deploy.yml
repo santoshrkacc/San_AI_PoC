@@ -1,0 +1,44 @@
+name: Deploy Databricks Notebooks
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        env: [dev, test, prod]
+    environment:
+      name: ${{ matrix.env }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: pip install -r requirements.txt
+      # - name: Lint & Typecheck
+      #   run: |
+      #     ruff check --fix .
+      #     mypy .
+      - name: Package notebooks
+        run: |
+          tar -czf notebooks.tar.gz notebooks src conf
+      - name: Deploy to Databricks (workspace import)
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: |
+          pip install databricks-cli==0.18.0
+          databricks workspace import_dir -o notebooks /Repos/GenAI_ETL_Code_New/notebooks
+          databricks workspace import_dir -o src /Repos/GenAI_ETL_Code_New/src
+      - name: Run job (optional)
+        if: ${{ matrix.env != 'prod' }}
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: |
+          echo "Trigger a Databricks job here via REST if configured"
+
