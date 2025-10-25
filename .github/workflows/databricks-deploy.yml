@@ -33,9 +33,9 @@ jobs:
         run: |
           tar -czf notebooks.tar.gz notebooks src conf
       - name: Deploy to Databricks (workspace import)
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        # env:
+        #   DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+        #   DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: |
           pip install databricks-cli==0.18.0
           databricks workspace import_dir -o notebooks /Repos/GenAI_ETL_Code_New/notebooks
