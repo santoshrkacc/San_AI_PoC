@@ -29,15 +29,21 @@ jobs:
       #     echo "[DEFAULT]" > ~/.databricks/config
       #     echo "host = ${{ secrets.DATABRICKS_HOST }}" >> ~/.databricks/config
       #     echo "token = ${{ secrets.DATABRICKS_TOKEN }}" >> ~/.databricks/config
+      - name: Setup Databricks CLI
+        uses: databricks/setup-cli@v1
+        with:
+          databricks-host: ${{ secrets.DATABRICKS_HOST }}
+          databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
       - name: Package notebooks
         run: |
           tar -czf notebooks.tar.gz notebooks src conf
       - name: Deploy to Databricks (workspace import)
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        # env:
+        #   DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+        #   DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: |
           pip install databricks-cli==0.18.0
+          databricks workspace import_dir notebooks /Shared/my_project --overwrite
           databricks workspace import_dir -o notebooks /Repos/GenAI_ETL_Code_New/notebooks
           databricks workspace import_dir -o src /Repos/GenAI_ETL_Code_New/src
       - name: Run job (optional)
